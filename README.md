@@ -1,4 +1,4 @@
-# CDNNX
+# CDNX
 CDN downloader for Switch (NX)
 
 
