@@ -1,8 +1,11 @@
 # CDNX
 CDN downloader for Switch (NX)
 
+![alt text](https://i.imgur.com/makUBiU.png?2 "CDNX")
 
-Requires your console cert in pfx format, named `nx_tls_client_cert.pfx` with password `switch`. 
+**Required:**
+
+Your console cert in pfx format, named `nx_tls_client_cert.pfx` with password `switch`. 
 
 **Credits:**
  
