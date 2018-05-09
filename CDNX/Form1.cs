@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -30,7 +31,6 @@ namespace CDNNX {
 					progBar.Step = 1;
 				});
 				
-
 				//Read response in chunks of 0x1000 bytes
 				using (Stream responseStream = response.GetResponseStream()) {
 					using (Stream fileStream = File.OpenWrite(Directory.GetCurrentDirectory() + @"\" + filename)) {
@@ -53,7 +53,8 @@ namespace CDNNX {
 		void downloadContent(string tid, string ver) {
 			//Download metadata
 			string url = Properties.Resources.CDNUrl + "/t/a/" + tid + "/" + ver;
-			DownloadFile(url, ver);
+            Directory.CreateDirectory(Directory.GetCurrentDirectory() + @"\" + tid);
+			DownloadFile(url, tid + @"\" + ver);
 
 			//Decrypt/parse meta data and download NCAs
 			string meta = Directory.GetCurrentDirectory() + @"\" + ver;
@@ -64,7 +65,7 @@ namespace CDNNX {
 				Task.Run(() => {
 					foreach (var nca in cnmt.contEntries) {
 						ThreadSafe(() => { WriteLine("[{0}]\n{1}", nca.Type, nca.NcaId); });
-						DownloadFile(Properties.Resources.CDNUrl + "/c/c/" + nca.NcaId, nca.NcaId);
+						DownloadFile(Properties.Resources.CDNUrl + "/c/c/" + nca.NcaId, tid + "/" + nca.NcaId);
 					}
 					ThreadSafe(() => { WriteLine("Done!"); });
 				});
@@ -77,6 +78,7 @@ namespace CDNNX {
 		private void dlBut_Click(object sender, EventArgs e) {
 			//Sanitize GUI inputs
 			outText.Text = "";
+            string version = "";
 			if (!Utils.IsValidTid(tidText.Text)) {
 				WriteLine("Invalid TID!");
 				return;
@@ -86,7 +88,16 @@ namespace CDNNX {
 				return;
 			}
 
-			downloadContent(tidText.Text, verText.Text);
+            //if version string was in decimal format, convert
+            if (Regex.Match(verText.Text, @"[0-9]\.[0-9]\.[0-9]\.[0-9]").Success) {
+                var v = verText.Text.Split('.');
+                version = ((Convert.ToUInt32(v[0]) << 26) | (Convert.ToUInt32(v[1]) << 20) | (Convert.ToUInt32(v[2]) << 16) | Convert.ToUInt32(v[3])).ToString();
+            }
+            else {
+                version = verText.Text;
+            }
+
+            downloadContent(tidText.Text, version);
 		}
 		#endregion
 
