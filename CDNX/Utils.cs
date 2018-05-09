@@ -17,7 +17,7 @@ namespace CDNNX {
 		}
 
 		public static bool IsValidVersion(string ver) {
-            return (Regex.Match(ver, @"[0-9]\.[0-9]\.[0-9]\.[0-9]").Success || Regex.Match(ver, @"[0-9]*").Success) ? true : false;
+            return (Regex.Match(ver, @"[0-9]\.[0-9]\.[0-9]\.[0-9]*").Success || Regex.Match(ver, @"[0-9]*").Success) ? true : false;
         }
 	}
 }
