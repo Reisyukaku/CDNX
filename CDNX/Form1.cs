@@ -21,11 +21,7 @@ namespace CDNNX {
 			try {
 				//Setup webrequest
 				DateTime startTime = DateTime.UtcNow;
-				X509Certificate2 cert = new X509Certificate2(Directory.GetCurrentDirectory() + @"\nx_tls_client_cert.pfx", "switch");
-				HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-				request.ClientCertificates.Add(cert);
-				ServicePointManager.ServerCertificateValidationCallback = ((sender, certificate, chain, sslPolicyErrors) => true);
-				WebResponse response = request.GetResponse();
+                var response = HTTP.Request("GET", url);
 				ThreadSafe(() => {
 					progBar.Maximum = (int)(response.ContentLength / 0x1000);
 					progBar.Step = 1;
@@ -52,14 +48,20 @@ namespace CDNNX {
 			}
 		}
 
-		void downloadContent(string tid, string ver) {
+        string GetMetadataUrl(string tid, string ver) {
+            string url = string.Format("{0}/t/a/{1}/{2}", Properties.Resources.CDNUrl, tid, ver);
+            var response = HTTP.Request("HEAD", url);
+            return string.Format("{0}/c/a/{1}", Properties.Resources.CDNUrl, response.Headers.Get("X-Nintendo-Content-ID"));
+        }
+
+        void downloadContent(string tid, string ver) {
 			//Download metadata
-			string url = string.Format("{0}/t/a/{1}/{2}", Properties.Resources.CDNUrl, tid, ver);
             Directory.CreateDirectory(string.Format("{0}/{1}", Directory.GetCurrentDirectory(), tid));
-            DownloadFile(url, string.Format("{0}/{1}", tid, ver));
+            var metaurl = GetMetadataUrl(tid, ver);
+            DownloadFile(metaurl, string.Format("{0}/{1}", tid, ver));
 
 			//Decrypt/parse meta data and download NCAs
-			string meta = string.Format("{0}/{1}", Directory.GetCurrentDirectory(), ver);
+			string meta = string.Format("{0}/{1}/{2}", Directory.GetCurrentDirectory(), tid, ver);
 			if (File.Exists(meta)) {
 				NCA3 nca3 = new NCA3(meta);
 				CNMT cnmt = new CNMT(new BinaryReader(new MemoryStream(nca3.pfs0.Files[0].RawData)));
