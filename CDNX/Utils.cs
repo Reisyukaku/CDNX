@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace CDNNX {
+
 	class Utils {
 
 		//Conversions

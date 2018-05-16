@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 
 namespace CDNNX {
+
 	#region NCA3
 	class NCA3 {
 

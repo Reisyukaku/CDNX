@@ -31,11 +31,14 @@
             this.label2 = new System.Windows.Forms.Label();
             this.outText = new System.Windows.Forms.TextBox();
             this.progBar = new System.Windows.Forms.ProgressBar();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // dlBut
             // 
-            this.dlBut.Location = new System.Drawing.Point(203, 51);
+            this.dlBut.Location = new System.Drawing.Point(203, 69);
             this.dlBut.Name = "dlBut";
             this.dlBut.Size = new System.Drawing.Size(75, 23);
             this.dlBut.TabIndex = 0;
@@ -45,7 +48,7 @@
             // 
             // tidText
             // 
-            this.tidText.Location = new System.Drawing.Point(12, 25);
+            this.tidText.Location = new System.Drawing.Point(12, 43);
             this.tidText.MaxLength = 16;
             this.tidText.Name = "tidText";
             this.tidText.Size = new System.Drawing.Size(176, 20);
@@ -54,7 +57,7 @@
             // 
             // verText
             // 
-            this.verText.Location = new System.Drawing.Point(194, 25);
+            this.verText.Location = new System.Drawing.Point(194, 43);
             this.verText.Name = "verText";
             this.verText.Size = new System.Drawing.Size(84, 20);
             this.verText.TabIndex = 2;
@@ -63,7 +66,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 9);
+            this.label1.Location = new System.Drawing.Point(12, 27);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(44, 13);
             this.label1.TabIndex = 3;
@@ -72,7 +75,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(191, 9);
+            this.label2.Location = new System.Drawing.Point(191, 27);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(45, 13);
             this.label2.TabIndex = 4;
@@ -80,10 +83,10 @@
             // 
             // outText
             // 
-            this.outText.Location = new System.Drawing.Point(12, 80);
+            this.outText.Location = new System.Drawing.Point(12, 98);
             this.outText.Multiline = true;
             this.outText.Name = "outText";
-            this.outText.Size = new System.Drawing.Size(266, 246);
+            this.outText.Size = new System.Drawing.Size(266, 228);
             this.outText.TabIndex = 5;
             // 
             // progBar
@@ -92,6 +95,23 @@
             this.progBar.Name = "progBar";
             this.progBar.Size = new System.Drawing.Size(263, 16);
             this.progBar.TabIndex = 6;
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.settingsToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(290, 24);
+            this.menuStrip1.TabIndex = 7;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // settingsToolStripMenuItem
+            // 
+            this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
+            this.settingsToolStripMenuItem.Text = "Settings";
+            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -105,10 +125,14 @@
             this.Controls.Add(this.dlBut);
             this.Controls.Add(this.tidText);
             this.Controls.Add(this.verText);
+            this.Controls.Add(this.menuStrip1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
             this.Text = "CDNX";
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -123,6 +147,8 @@
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.TextBox outText;
 		private System.Windows.Forms.ProgressBar progBar;
-	}
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
+    }
 }
 
