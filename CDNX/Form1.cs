@@ -1,24 +1,27 @@
 ﻿using System;
 using System.IO;
-using System.Net;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace CDNNX {
+
 	public partial class Form1 : Form {
 
-		public Form1() {
+        Settings settings;
+
+        public Form1() {
 			InitializeComponent();
-			if (!File.Exists(Directory.GetCurrentDirectory() + @"\nx_tls_client_cert.pfx") || !File.Exists(Directory.GetCurrentDirectory() + @"\NXCrypt.dll")) {
+            settings = new Settings();
+            if (!File.Exists(Directory.GetCurrentDirectory() + @"\nx_tls_client_cert.pfx") || !File.Exists(Directory.GetCurrentDirectory() + @"\NXCrypt.dll")) {
 				MessageBox.Show("Missing dependency in root dir.");
 				Environment.Exit(0);
 			}
+            if (!File.Exists(Directory.GetCurrentDirectory() + "/config.ini")) settings.CreateConfig();
 		}
 
-		void DownloadFile(string url, string filename) {
-			try {
+        void DownloadFile(string url, string filename) {
+            try {
 				//Setup webrequest
 				DateTime startTime = DateTime.UtcNow;
                 var response = HTTP.Request("GET", url);
@@ -46,36 +49,53 @@ namespace CDNNX {
 			} catch (Exception e) {
 				Console.WriteLine(e);
 			}
-		}
+        }
 
         string GetMetadataUrl(string tid, string ver) {
             string url = string.Format("{0}/t/a/{1}/{2}", Properties.Resources.CDNUrl, tid, ver);
-            var response = HTTP.Request("HEAD", url);
-            return string.Format("{0}/c/a/{1}", Properties.Resources.CDNUrl, response.Headers.Get("X-Nintendo-Content-ID"));
+            string ret = "";
+            try {
+                var response = HTTP.Request("HEAD", url);
+                ret = string.Format("{0}/c/a/{1}", Properties.Resources.CDNUrl, response.Headers.Get("X-Nintendo-Content-ID"));
+            }
+            catch (Exception e) {
+                Console.WriteLine(e.StackTrace);
+            }
+            return ret;
         }
 
         void downloadContent(string tid, string ver) {
-			//Download metadata
-            Directory.CreateDirectory(string.Format("{0}/{1}", Directory.GetCurrentDirectory(), tid));
-            var metaurl = GetMetadataUrl(tid, ver);
-            DownloadFile(metaurl, string.Format("{0}/{1}", tid, ver));
+            try {
+                //Download metadata
+                Directory.CreateDirectory(string.Format("{0}/{1}", Directory.GetCurrentDirectory(), tid));
+                var metaurl = GetMetadataUrl(tid, ver);
+                DownloadFile(metaurl, string.Format("{0}/{1}", tid, ver));
 
-			//Decrypt/parse meta data and download NCAs
-			string meta = string.Format("{0}/{1}/{2}", Directory.GetCurrentDirectory(), tid, ver);
-			if (File.Exists(meta)) {
-				NCA3 nca3 = new NCA3(meta);
-				CNMT cnmt = new CNMT(new BinaryReader(new MemoryStream(nca3.pfs0.Files[0].RawData)));
-				WriteLine("Title: {0} v{1}\nType: {2}\n", cnmt.TitleId.ToString("X8"), ver, cnmt.Type);
-				Task.Run(() => {
-					foreach (var nca in cnmt.contEntries) {
-						ThreadSafe(() => { WriteLine("[{0}]\n{1}", nca.Type, nca.NcaId); });
-						DownloadFile(string.Format("{0}/c/c/{1}", Properties.Resources.CDNUrl, nca.NcaId), string.Format("{0}/{1}", tid, nca.NcaId));
-					}
-					ThreadSafe(() => { WriteLine("Done!"); });
-				});
-			} else {
-				WriteLine("Error retriving meta!");
-			}
+                //Decrypt/parse meta data and download NCAs
+                string meta = string.Format("{0}/{1}/{2}", Directory.GetCurrentDirectory(), tid, ver);
+                if (File.Exists(meta))
+                {
+                    NCA3 nca3 = new NCA3(meta);
+                    CNMT cnmt = new CNMT(new BinaryReader(new MemoryStream(nca3.pfs0.Files[0].RawData)));
+                    WriteLine("Title: {0} v{1}\nType: {2}\n", cnmt.TitleId.ToString("X8"), ver, cnmt.Type);
+                    Task.Run(() =>
+                    {
+                        foreach (var nca in cnmt.contEntries)
+                        {
+                            ThreadSafe(() => { WriteLine("[{0}]\n{1}", nca.Type, nca.NcaId); });
+                            DownloadFile(string.Format("{0}/c/c/{1}", Properties.Resources.CDNUrl, nca.NcaId), string.Format("{0}/{1}", tid, nca.NcaId));
+                        }
+                        ThreadSafe(() => { WriteLine("Done!"); });
+                    });
+                }
+                else
+                {
+                    WriteLine("Error retriving meta!");
+                }
+            }
+            catch (Exception e) {
+                Console.WriteLine(e.StackTrace);
+            }
 		}
 
 		#region GUI
@@ -118,6 +138,11 @@ namespace CDNNX {
 			else
 				method();
 		}
-		#endregion
-	}
+        #endregion
+
+        private void settingsToolStripMenuItem_Click(object sender, EventArgs e) {
+            settings.LoadConfig();
+            settings.Show();
+        }
+    }
 }

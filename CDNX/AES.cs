@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 
 namespace CDNNX {
+
 	class AES {
 
 		[DllImport("NXCrypt.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
