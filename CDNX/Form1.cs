@@ -13,11 +13,17 @@ namespace CDNNX {
         public Form1() {
 			InitializeComponent();
             settings = new Settings();
-            if (!File.Exists(Directory.GetCurrentDirectory() + @"\nx_tls_client_cert.pfx") || !File.Exists(Directory.GetCurrentDirectory() + @"\NXCrypt.dll")) {
-				MessageBox.Show("Missing dependency in root dir.");
+            if (!File.Exists(Directory.GetCurrentDirectory() + "/config.ini")) settings.CreateConfig();
+
+            if (!File.Exists(Directory.GetCurrentDirectory() + @"\NXCrypt.dll")) {
+				MessageBox.Show("Missing dll dependency in root dir.");
 				Environment.Exit(0);
 			}
-            if (!File.Exists(Directory.GetCurrentDirectory() + "/config.ini")) settings.CreateConfig();
+
+            string cert = INIFile.ReadSetting("cert");
+            if (!File.Exists(cert) || !Regex.IsMatch(cert, @"\.pfx")) {
+                MessageBox.Show("Proper cert missing from settings!");
+            }
 		}
 
         void DownloadFile(string url, string filename) {
@@ -123,10 +129,15 @@ namespace CDNNX {
 
             downloadContent(tidText.Text, version);
 		}
-		#endregion
 
-		#region MISC
-		void WriteLine(string str, params object[] args) {
+        private void settingsToolStripMenuItem_Click(object sender, EventArgs e) {
+            settings.LoadConfig();
+            settings.Show();
+        }
+        #endregion
+
+        #region MISC
+        void WriteLine(string str, params object[] args) {
 			string res = "";
 			foreach (var s in str.Split('\n')) res += s + Environment.NewLine;
 			outText.Text += string.Format(res, args);
@@ -140,9 +151,9 @@ namespace CDNNX {
 		}
         #endregion
 
-        private void settingsToolStripMenuItem_Click(object sender, EventArgs e) {
-            settings.LoadConfig();
-            settings.Show();
+        private void keysToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

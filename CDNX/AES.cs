@@ -6,13 +6,13 @@ namespace CDNNX {
 
 	class AES {
 
-		[DllImport("NXCrypt.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport("NXCrypt.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
 		private extern static void decryptHeader([Out] byte[] dst, byte[] src, int fileSize, byte[] headerKey);
 
-		[DllImport("NXCrypt.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport("NXCrypt.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
 		private extern static void decryptKeyArea([Out] byte[] dst, byte[] src, byte[] areaKey);
 
-		[DllImport("NXCrypt.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport("NXCrypt.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
 		private extern static void AesCtr([Out] byte[] dst, byte[] src, uint size, byte[] key, byte[] iv);
 
 		public static BinaryReader DecryptHeader(byte[] file) {

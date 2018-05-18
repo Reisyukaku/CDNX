@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Windows.Forms;
 
 namespace CDNNX {
@@ -20,7 +21,7 @@ namespace CDNNX {
             INIFile.WriteSetting("did", "0000000000000000");
             INIFile.WriteSetting("firmver", "0.0.0-0");
             INIFile.WriteSetting("eid", "lp1");
-            INIFile.WriteSetting("cert", "");
+            INIFile.WriteSetting("cert", Directory.GetCurrentDirectory() + "/nx_tls_client_cert.pfx");
         }
 
         private void cancelBut_Click(object sender, EventArgs e) {
@@ -36,6 +37,15 @@ namespace CDNNX {
 
             Close();
             Dispose();
+        }
+
+        private void browseCertBut_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            if (ofd.ShowDialog() == DialogResult.OK) {
+                certText.Text = ofd.FileName;
+                //
+            }
         }
     }
 }

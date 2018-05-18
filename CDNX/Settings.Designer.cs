@@ -103,6 +103,7 @@
             this.browseCertBut.TabIndex = 6;
             this.browseCertBut.Text = "Browse";
             this.browseCertBut.UseVisualStyleBackColor = true;
+            this.browseCertBut.Click += new System.EventHandler(this.browseCertBut_Click);
             // 
             // eidText
             // 
@@ -142,7 +143,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(326, 148);
+            this.ClientSize = new System.Drawing.Size(326, 151);
             this.Controls.Add(this.firmText);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.eidText);
