@@ -8,44 +8,41 @@ namespace CDNNX {
 
         public Settings() {
             InitializeComponent();
+
+            didText.Text = INIFile.Read("settings", "did");
+            firmText.Text = INIFile.Read("settings", "firmver");
+            eidText.Text = INIFile.Read("settings", "eid");
+            certText.Text = INIFile.Read("settings", "cert");
         }
 
-        public void LoadConfig() {
-            didText.Text = INIFile.ReadSetting("did");
-            firmText.Text = INIFile.ReadSetting("firmver");
-            eidText.Text = INIFile.ReadSetting("eid");
-            certText.Text = INIFile.ReadSetting("cert");
-        }
-
-        public void CreateConfig() {
-            INIFile.WriteSetting("did", "0000000000000000");
-            INIFile.WriteSetting("firmver", "0.0.0-0");
-            INIFile.WriteSetting("eid", "lp1");
-            INIFile.WriteSetting("cert", Directory.GetCurrentDirectory() + "/nx_tls_client_cert.pfx");
+        public static void Create() {
+            INIFile.Write("settings", "did", "0000000000000000");
+            INIFile.Write("settings", "firmver", "0.0.0-0");
+            INIFile.Write("settings", "eid", "lp1");
+            INIFile.Write("settings", "cert", Directory.GetCurrentDirectory() + "/nx_tls_client_cert.pfx");
         }
 
         private void cancelBut_Click(object sender, EventArgs e) {
             Close();
-            Dispose();
         }
 
         private void saveBut_Click(object sender, EventArgs e) {
-            INIFile.WriteSetting("did", didText.Text);
-            INIFile.WriteSetting("firmver", firmText.Text);
-            INIFile.WriteSetting("eid", eidText.Text);
-            INIFile.WriteSetting("cert", certText.Text);
+            INIFile.Write("settings", "did", didText.Text);
+            INIFile.Write("settings", "firmver", firmText.Text);
+            INIFile.Write("settings", "eid", eidText.Text);
+            INIFile.Write("settings", "cert", certText.Text);
 
             Close();
-            Dispose();
         }
 
-        private void browseCertBut_Click(object sender, EventArgs e)
-        {
+        private void browseCertBut_Click(object sender, EventArgs e) {
             OpenFileDialog ofd = new OpenFileDialog();
-            if (ofd.ShowDialog() == DialogResult.OK) {
+            if (ofd.ShowDialog() == DialogResult.OK)
                 certText.Text = ofd.FileName;
-                //
-            }
+        }
+
+        public static string GetCdnUrl() {
+            return string.Format(Properties.Resources.CDNUrl, INIFile.Read("settings", "eid"));
         }
     }
 }

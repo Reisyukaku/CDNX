@@ -117,19 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AppKaek" xml:space="preserve">
-    <value>EF979E289A132C23D39C4EC5A0BBA969</value>
-  </data>
   <data name="CDNUrl" xml:space="preserve">
-    <value>https://atumn.hac.lp1.d4c.nintendo.net</value>
-  </data>
-  <data name="HeaderKey" xml:space="preserve">
-    <value>AEAAB1CA08ADF9BEF12991F369E3C567D6881E4E4A6A47A51F6E4877062D542D</value>
-  </data>
-  <data name="OceanKaek" xml:space="preserve">
-    <value>B33813E4C9C4399C75FABC673AB4947B</value>
-  </data>
-  <data name="SysKaek" xml:space="preserve">
-    <value>6DD02AA15B440D6231236B6677DE86BC</value>
+    <value>https://atumn.hac.{0}.d4c.nintendo.net</value>
   </data>
 </root>

@@ -13,7 +13,7 @@ namespace CDNNX {
 		public bool IsGameCard;
 		public byte ContentType;
 		public byte CryptoType;
-		public byte KeyIndex;
+		public byte KaekIndex;
 		public UInt64 Size;
 		public UInt64 TitleID;
 		public UInt32 SDKVersion;
@@ -33,7 +33,7 @@ namespace CDNNX {
 			IsGameCard = br.ReadBoolean();
 			ContentType = br.ReadByte();
 			CryptoType = br.ReadByte();
-			KeyIndex = br.ReadByte();
+			KaekIndex = br.ReadByte();
 			Size = br.ReadUInt64();
 			TitleID = br.ReadUInt64();
 			br.ReadBytes(4); //padding?
@@ -48,7 +48,7 @@ namespace CDNNX {
 			HashTable = new List<byte[]>();
 			for (var i = 0; i < 4; i++) HashTable.Add(br.ReadBytes(0x20));
 
-			var keyblob = new BinaryReader(new MemoryStream(AES.DecryptKeyArea(br, KeyIndex)));
+			var keyblob = new BinaryReader(new MemoryStream(AES.DecryptKeyArea(br, KaekIndex, CryptoType)));
 			KeyArea = new List<byte[]>();
 			for (var i = 0; i < 4; i++) KeyArea.Add(keyblob.ReadBytes(0x10));
 			keyblob.Close();

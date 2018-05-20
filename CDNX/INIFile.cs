@@ -11,13 +11,14 @@ namespace CDNNX {
         [DllImport("kernel32")]
         private static extern int GetPrivateProfileString(string section, string key, string def, StringBuilder retVal, int size, string filePath);
 
-        public static void WriteSetting(string Key, string Value){
-            WritePrivateProfileString("settings", Key, Value, Directory.GetCurrentDirectory()+"/config.ini");
+
+        public static void Write(string category, string Key, string Value){
+            WritePrivateProfileString(category, Key, Value, Directory.GetCurrentDirectory()+"/config.ini");
         }
 
-        public static string ReadSetting(string Key){
+        public static string Read(string category, string Key){
             StringBuilder temp = new StringBuilder(255);
-            int i = GetPrivateProfileString("settings", Key, "", temp, 255, Directory.GetCurrentDirectory() + "/config.ini");
+            int i = GetPrivateProfileString(category, Key, "", temp, 255, Directory.GetCurrentDirectory() + "/config.ini");
             return temp.ToString();
         }
     }

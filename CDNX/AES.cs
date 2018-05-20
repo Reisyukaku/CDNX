@@ -15,10 +15,13 @@ namespace CDNNX {
 		[DllImport("NXCrypt.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
 		private extern static void AesCtr([Out] byte[] dst, byte[] src, uint size, byte[] key, byte[] iv);
 
-		public static BinaryReader DecryptHeader(byte[] file) {
+        [DllImport("NXCrypt.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+        private extern static void generate_kek(byte[] dst, byte[] src, byte[] master_key, byte[] kek_seed, byte[] key_seed);
+
+        public static BinaryReader DecryptHeader(byte[] file) {
 			byte[] res = null;
 			try {
-				byte[] headerKey = Utils.StringToByteArray(Properties.Resources.HeaderKey);
+                byte[] headerKey = Utils.StringToByteArray(INIFile.Read("keys", "headkey"));
 				res = new byte[file.Length];
 				decryptHeader(res, file, file.Length, headerKey);
 			} catch (Exception e) {
@@ -27,17 +30,27 @@ namespace CDNNX {
 			return new BinaryReader(new MemoryStream(res));
 		}
 
-		public static byte[] DecryptKeyArea(BinaryReader br, uint keyIndex) {
+		public static byte[] DecryptKeyArea(BinaryReader br, uint kaekInd, uint mkInd) {
 			byte[] res = null;
 			try {
-				byte[] areakey = null;
-				switch (keyIndex) {
-					case 0: areakey = Utils.StringToByteArray(Properties.Resources.AppKaek); break;
-					case 1: areakey = Utils.StringToByteArray(Properties.Resources.OceanKaek); break;
-					case 2: areakey = Utils.StringToByteArray(Properties.Resources.SysKaek); break;
+				byte[] areakey = {0};
+                byte[] kaekSrc = {0};
+				switch (kaekInd) {
+                    default:
+					case 0: kaekSrc = Utils.StringToByteArray(INIFile.Read("keys", "akaeksrc")); break;
+					case 1: kaekSrc = Utils.StringToByteArray(INIFile.Read("keys", "okaeksrc")); break;
+					case 2: kaekSrc = Utils.StringToByteArray(INIFile.Read("keys", "skaeksrc")); break;
 				}
-				res = new byte[0x40];
+                generate_kek(
+                    areakey, 
+                    kaekSrc, 
+                    Utils.StringToByteArray(INIFile.Read("keys", "MK"+mkInd.ToString("D2"))), 
+                    Utils.StringToByteArray(INIFile.Read("keys", "kekseed")), 
+                    Utils.StringToByteArray(INIFile.Read("keys", "keyseed"))
+                );
+                res = new byte[0x40];
 				decryptKeyArea(res, br.ReadBytes(0x40), areakey);
+                BitConverter.ToString(res);
 			} catch (Exception e) {
 				Console.WriteLine(e.StackTrace);
 			}

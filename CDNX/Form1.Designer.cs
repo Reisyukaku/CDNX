@@ -34,12 +34,13 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.keysToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.statusLbl = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // dlBut
             // 
-            this.dlBut.Location = new System.Drawing.Point(203, 69);
+            this.dlBut.Location = new System.Drawing.Point(158, 69);
             this.dlBut.Name = "dlBut";
             this.dlBut.Size = new System.Drawing.Size(75, 23);
             this.dlBut.TabIndex = 0;
@@ -52,13 +53,13 @@
             this.tidText.Location = new System.Drawing.Point(12, 43);
             this.tidText.MaxLength = 16;
             this.tidText.Name = "tidText";
-            this.tidText.Size = new System.Drawing.Size(176, 20);
+            this.tidText.Size = new System.Drawing.Size(131, 20);
             this.tidText.TabIndex = 1;
             this.tidText.Text = "0000000000000000";
             // 
             // verText
             // 
-            this.verText.Location = new System.Drawing.Point(194, 43);
+            this.verText.Location = new System.Drawing.Point(149, 43);
             this.verText.Name = "verText";
             this.verText.Size = new System.Drawing.Size(84, 20);
             this.verText.TabIndex = 2;
@@ -76,7 +77,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(191, 27);
+            this.label2.Location = new System.Drawing.Point(146, 27);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(45, 13);
             this.label2.TabIndex = 4;
@@ -87,14 +88,14 @@
             this.outText.Location = new System.Drawing.Point(12, 98);
             this.outText.Multiline = true;
             this.outText.Name = "outText";
-            this.outText.Size = new System.Drawing.Size(266, 228);
+            this.outText.Size = new System.Drawing.Size(221, 228);
             this.outText.TabIndex = 5;
             // 
             // progBar
             // 
-            this.progBar.Location = new System.Drawing.Point(15, 332);
+            this.progBar.Location = new System.Drawing.Point(149, 332);
             this.progBar.Name = "progBar";
-            this.progBar.Size = new System.Drawing.Size(263, 16);
+            this.progBar.Size = new System.Drawing.Size(84, 16);
             this.progBar.TabIndex = 6;
             // 
             // menuStrip1
@@ -104,7 +105,7 @@
             this.keysToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(290, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(245, 24);
             this.menuStrip1.TabIndex = 7;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -122,11 +123,21 @@
             this.keysToolStripMenuItem.Text = "Keys";
             this.keysToolStripMenuItem.Click += new System.EventHandler(this.keysToolStripMenuItem_Click);
             // 
+            // statusLbl
+            // 
+            this.statusLbl.AutoSize = true;
+            this.statusLbl.Location = new System.Drawing.Point(12, 335);
+            this.statusLbl.Name = "statusLbl";
+            this.statusLbl.Size = new System.Drawing.Size(41, 13);
+            this.statusLbl.TabIndex = 8;
+            this.statusLbl.Text = "Ready!";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(290, 360);
+            this.ClientSize = new System.Drawing.Size(245, 360);
+            this.Controls.Add(this.statusLbl);
             this.Controls.Add(this.progBar);
             this.Controls.Add(this.outText);
             this.Controls.Add(this.label2);
@@ -159,6 +170,7 @@
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem keysToolStripMenuItem;
+        private System.Windows.Forms.Label statusLbl;
     }
 }
 

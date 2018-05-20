@@ -61,47 +61,11 @@ namespace CDNNX.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to EF979E289A132C23D39C4EC5A0BBA969.
-        /// </summary>
-        internal static string AppKaek {
-            get {
-                return ResourceManager.GetString("AppKaek", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to https://atumn.hac.lp1.d4c.nintendo.net.
+        ///   Looks up a localized string similar to https://atumn.hac.{0}.d4c.nintendo.net.
         /// </summary>
         internal static string CDNUrl {
             get {
                 return ResourceManager.GetString("CDNUrl", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to AEAAB1CA08ADF9BEF12991F369E3C567D6881E4E4A6A47A51F6E4877062D542D.
-        /// </summary>
-        internal static string HeaderKey {
-            get {
-                return ResourceManager.GetString("HeaderKey", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to B33813E4C9C4399C75FABC673AB4947B.
-        /// </summary>
-        internal static string OceanKaek {
-            get {
-                return ResourceManager.GetString("OceanKaek", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to 6DD02AA15B440D6231236B6677DE86BC.
-        /// </summary>
-        internal static string SysKaek {
-            get {
-                return ResourceManager.GetString("SysKaek", resourceCulture);
             }
         }
     }

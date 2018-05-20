@@ -10,10 +10,10 @@ namespace CDNNX {
             X509Certificate2 cert = new X509Certificate2(Directory.GetCurrentDirectory() + @"\nx_tls_client_cert.pfx", "switch");
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.ClientCertificates.Add(cert);
-            request.UserAgent = string.Format("NintendoSDK Firmware/{0} (platform:NX; did:{1}; eid:{2})", INIFile.ReadSetting("firmver"), INIFile.ReadSetting("did"), INIFile.ReadSetting("eid"));
+            request.UserAgent = string.Format("NintendoSDK Firmware/{0} (platform:NX; did:{1}; eid:{2})", INIFile.Read("settings", "firmver"), INIFile.Read("settings", "did"), INIFile.Read("settings", "eid"));
             request.Method = method;
             ServicePointManager.ServerCertificateValidationCallback = ((sender, certificate, chain, sslPolicyErrors) => true);
-            if (((HttpWebResponse)request.GetResponse()).StatusCode != HttpStatusCode.OK) return null;
+            if (((HttpWebResponse)request.GetResponse()).StatusCode != HttpStatusCode.OK) { System.Console.WriteLine("http error"); return null; }
             return request.GetResponse();
         }
     }
