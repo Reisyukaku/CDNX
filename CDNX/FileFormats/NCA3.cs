@@ -48,10 +48,14 @@ namespace CDNNX {
 			HashTable = new List<byte[]>();
 			for (var i = 0; i < 4; i++) HashTable.Add(br.ReadBytes(0x20));
 
-			var keyblob = new BinaryReader(new MemoryStream(AES.DecryptKeyArea(br, KaekIndex, CryptoType)));
-			KeyArea = new List<byte[]>();
-			for (var i = 0; i < 4; i++) KeyArea.Add(keyblob.ReadBytes(0x10));
-			keyblob.Close();
+            var keyblob = AES.DecryptKeyArea(br, KaekIndex, CryptoType) ?? new byte[0x10];
+
+            KeyArea = new List<byte[]>();
+            for (var i = 0; i < 4; i++) {
+                byte[] temp = new byte[0x10];
+                Array.Copy(keyblob, (i*0x10), temp, 0, 0x10);
+                KeyArea.Add(temp);
+            }
 
 			//Section header block
 			br.BaseStream.Position = 0x400;

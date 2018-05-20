@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace CDNNX {
 
@@ -31,6 +32,11 @@ namespace CDNNX {
 		}
 
 		public static byte[] DecryptKeyArea(BinaryReader br, uint kaekInd, uint mkInd) {
+            if (INIFile.Read("keys", "MK" + mkInd.ToString("D2")) == string.Empty) {
+                MessageBox.Show(string.Format("Missing the required Masterkey {0} for this title!", mkInd.ToString("D2")));
+                return null;
+            }
+
 			byte[] res = null;
 			try {
 				byte[] areakey = {0};
@@ -50,7 +56,6 @@ namespace CDNNX {
                 );
                 res = new byte[0x40];
 				decryptKeyArea(res, br.ReadBytes(0x40), areakey);
-                BitConverter.ToString(res);
 			} catch (Exception e) {
 				Console.WriteLine(e.StackTrace);
 			}

@@ -29,36 +29,6 @@ namespace CDNNX {
             }
 		}
 
-        void DownloadFile(string url, string filename) {
-            try {
-                //Setup webrequest
-                DateTime startTime = DateTime.UtcNow;
-                var response = HTTP.Request("GET", url);
-                ThreadSafe(() => {
-                    int max = (int)(response.ContentLength / 0x1000);
-                    progBar.Maximum = max < 0x1000 ? 1 : max;
-                    progBar.Step = 1;
-                });
-                //Read response in chunks of 0x1000 bytes
-                string filepath = string.Format("{0}/{1}", Directory.GetCurrentDirectory(), filename);
-                using (Stream responseStream = response.GetResponseStream()) {
-                    using (Stream fileStream = File.OpenWrite(filepath)) {
-                        byte[] buffer = new byte[0x1000];
-                        int bytesRead = 0;
-                        do {
-                            bytesRead = responseStream.Read(buffer, 0, 0x1000);
-                            fileStream.Write(buffer, 0, bytesRead);
-                            if ((DateTime.UtcNow - startTime).TotalMinutes > 5) throw new ApplicationException("Download timed out");
-                            ThreadSafe(() => { progBar.PerformStep(); });
-                        } while (bytesRead > 0);
-                    }
-                }
-                response.Close();
-            } catch (Exception e) {
-                Console.WriteLine(e);
-            }
-        }
-
         string GetMetadataUrl(string tid, string ver) {
             StatusWrite("Getting meta NcaId..");
             string url = string.Format("{0}/t/a/{1}/{2}", Settings.GetCdnUrl(), tid, ver);
@@ -71,6 +41,38 @@ namespace CDNNX {
                 Console.WriteLine(e.StackTrace);
             }
             return ret;
+        }
+
+        void DownloadFile(string url, string filename) {
+            try {
+                //Setup webrequest
+                DateTime startTime = DateTime.UtcNow;
+                var response = HTTP.Request("GET", url);
+                int max = (int)(response.ContentLength / 0x1000);
+                ThreadSafe(() => {
+                    progBar.Maximum = max < 0x1000 ? 1 : max;
+                    progBar.Step = 1;
+                
+                    //Read response in chunks of 0x1000 bytes
+                    string filepath = string.Format("{0}/{1}", Directory.GetCurrentDirectory(), filename);
+                    using (Stream responseStream = response.GetResponseStream()) {
+                        using (Stream fileStream = File.OpenWrite(filepath)) {
+                            byte[] buffer = new byte[0x1000];
+                            int bytesRead = 0;
+                            do {
+                                bytesRead = responseStream.Read(buffer, 0, 0x1000);
+                                Console.WriteLine("Bytesread: " + bytesRead.ToString("X8"));
+                                fileStream.Write(buffer, 0, bytesRead);
+                                if ((DateTime.UtcNow - startTime).TotalMinutes > 5) throw new ApplicationException("Download timed out");
+                                progBar.PerformStep();
+                            } while (bytesRead > 0);
+                        }
+                    }
+                });
+                response.Close();
+                } catch (Exception e) {
+Console.WriteLine(e);
+            }
         }
 
         void downloadContent(string tid, string ver) {
