@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -13,12 +15,12 @@ namespace CDNNX {
 			InitializeComponent();
 
             //Check for pre-req. files
-            if (!File.Exists(Directory.GetCurrentDirectory() + "/config.ini")) {
+            if (!File.Exists(Path.Combine(Application.StartupPath, "config.ini"))) {
                 Settings.Create();
                 Keys.Create();
             }
 
-            if (!File.Exists(Directory.GetCurrentDirectory() + @"\NXCrypt.dll")) {
+            if (!File.Exists(Path.Combine(Application.StartupPath, "NXCrypt.dll"))) {
 				MessageBox.Show("Missing NXCrypt.dll dependency in root dir.");
 				Environment.Exit(0);
 			}
@@ -31,11 +33,11 @@ namespace CDNNX {
 
         string GetMetadataUrl(string tid, string ver) {
             StatusWrite("Getting meta NcaId..");
-            string url = string.Format("{0}/t/a/{1}/{2}", Settings.GetCdnUrl(), tid, ver);
+            string url = $"{Settings.GetCdnUrl()}/t/a/{tid}/{ver}";
             string ret = "";
             try {
-                var response = HTTP.Request("HEAD", url);
-                ret = string.Format("{0}/c/a/{1}", Settings.GetCdnUrl(), response.Headers.Get("X-Nintendo-Content-ID"));
+                WebResponse response = HTTP.Request("HEAD", url);
+                ret = $"{Settings.GetCdnUrl()}/c/a/{response.Headers.Get("X-Nintendo-Content-ID")}";
                 response.Close();
             } catch (Exception e) {
                 Console.WriteLine(e.StackTrace);
@@ -47,18 +49,18 @@ namespace CDNNX {
             try {
                 //Setup webrequest
                 DateTime startTime = DateTime.UtcNow;
-                var response = HTTP.Request("GET", url);
+                WebResponse response = HTTP.Request("GET", url);
                 int max = (int)(response.ContentLength / 0x1000);
                 ThreadSafe(() => {
                     progBar.Maximum = max < 0x1000 ? 1 : max;
                     progBar.Step = 1;
                 
                     //Read response in chunks of 0x1000 bytes
-                    string filepath = string.Format("{0}/{1}", Directory.GetCurrentDirectory(), filename);
+                    string filepath = Path.Combine(Application.StartupPath, filename);
                     using (Stream responseStream = response.GetResponseStream()) {
                         using (Stream fileStream = File.OpenWrite(filepath)) {
                             byte[] buffer = new byte[0x1000];
-                            int bytesRead = 0;
+                            int bytesRead;
                             do {
                                 bytesRead = responseStream.Read(buffer, 0, 0x1000);
                                 Console.WriteLine("Bytesread: " + bytesRead.ToString("X8"));
@@ -78,22 +80,22 @@ Console.WriteLine(e);
         void downloadContent(string tid, string ver) {
             try {
                 //Download metadata
-                Directory.CreateDirectory(string.Format("{0}/{1}", Directory.GetCurrentDirectory(), tid));
-                var metaurl = GetMetadataUrl(tid, ver);
+                Directory.CreateDirectory(Path.Combine(Application.StartupPath, tid));
+                string metaurl = GetMetadataUrl(tid, ver);
                 StatusWrite("Downloading meta NCA...");
-                DownloadFile(metaurl, string.Format("{0}/{1}", tid, ver));
+                DownloadFile(metaurl, $"{tid}/{ver}");
                 
                 //Decrypt/parse meta data and download NCAs
-                string meta = string.Format("{0}/{1}/{2}", Directory.GetCurrentDirectory(), tid, ver);
+                string meta = Path.Combine(Application.StartupPath, tid, ver);
                 if (File.Exists(meta)) {
                     StatusWrite("Parsing meta...");
                     NCA3 nca3 = new NCA3(meta);
                     CNMT cnmt = new CNMT(new BinaryReader(new MemoryStream(nca3.pfs0.Files[0].RawData)));
                     WriteLine("Title: {0} v{1}\nType: {2}\nMKey: {3}\n", cnmt.TitleId.ToString("X8"), ver, cnmt.Type, nca3.CryptoType.ToString("D2"));
-                    foreach (var nca in cnmt.contEntries) {
+                    foreach (ContEntry nca in cnmt.contEntries) {
                         WriteLine("[{0}]\n{1}", nca.Type, nca.NcaId);
                         StatusWrite("Downloading content NCA...");
-                        DownloadFile(string.Format("{0}/c/c/{1}", Settings.GetCdnUrl(), nca.NcaId), string.Format("{0}/{1}", tid, nca.NcaId));
+                        DownloadFile($"{Settings.GetCdnUrl()}/c/c/{nca.NcaId}", $"{tid}/{nca.NcaId}");
                     }
                     WriteLine("Done!");
                 } else {
@@ -136,7 +138,7 @@ Console.WriteLine(e);
 
             //if version string was in decimal format, convert
             if (Regex.Match(verText.Text, @"[0-9]\.[0-9]\.[0-9]\.[0-9]*").Success) {
-                var v = verText.Text.Split('.');
+                string[] v = verText.Text.Split('.');
                 version = ((Convert.ToUInt32(v[0]) << 26) | (Convert.ToUInt32(v[1]) << 20) | (Convert.ToUInt32(v[2]) << 16) | Convert.ToUInt32(v[3])).ToString();
             } else {
                 version = verText.Text;
@@ -146,20 +148,19 @@ Console.WriteLine(e);
 		}
 
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e) {
-            var settings = new Settings();
+            Settings settings = new Settings();
             settings.Show();
         }
 
         private void keysToolStripMenuItem_Click(object sender, EventArgs e) {
-            var keys = new Keys();
+            Keys keys = new Keys();
             keys.Show();
         }
         #endregion
 
         #region MISC
         void WriteLine(string str, params object[] args) {
-			string res = "";
-			foreach (var s in str.Split('\n')) res += s + Environment.NewLine;
+			string res = str.Split('\n').Aggregate("", (current, s) => current + (s + Environment.NewLine));
             ThreadSafe(() => { outText.Text += string.Format(res, args); });
 		}
 

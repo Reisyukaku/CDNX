@@ -21,7 +21,7 @@ namespace CDNNX {
                 Label lbl = new Label();
                 lbl.Location = new System.Drawing.Point(6, 35 + (i * 26));
                 lbl.Size = new System.Drawing.Size(44, 13);
-                lbl.Text = string.Format("MK_{0}:", i.ToString("D2"));
+                lbl.Text = $"MK_{i:D2}:";
 
                 groupBox1.Controls.Add(tb);
                 groupBox1.Controls.Add(lbl);
@@ -57,7 +57,7 @@ namespace CDNNX {
 
         private void saveKeysBut_Click(object sender, EventArgs e) {
             int i = 0;
-            foreach (var txt in mkTxts) {
+            foreach (TextBox txt in mkTxts) {
                 INIFile.Write("keys", "MK" + i.ToString("D2"), txt.Text);
                 i++;
             }

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 
 namespace CDNNX {
-	class CNMT {
+    internal class CNMT {
 
-		public UInt64 TitleId;
+		public ulong TitleId;
 		public uint TitleVersion;
 		public string Type;
 		public List<ContEntry> contEntries;
@@ -27,12 +27,12 @@ namespace CDNNX {
 			TitleVersion = br.ReadUInt32();
 			Type = ((Types)br.ReadByte()).ToString();
 			br.ReadByte();
-			var offset = br.ReadUInt16();
-			var contCnt = br.ReadUInt16();
-			var metaCnt = br.ReadUInt16();
+			ushort offset = br.ReadUInt16();
+			ushort contCnt = br.ReadUInt16();
+			ushort metaCnt = br.ReadUInt16();
 			br.ReadBytes(12+offset);
 			contEntries = new List<ContEntry>();
-			for (var i = 0; i < contCnt; i++) {
+			for (int i = 0; i < contCnt; i++) {
 				ContEntry entry = new ContEntry(br);
 				contEntries.Add(entry);
 			}
@@ -40,7 +40,7 @@ namespace CDNNX {
 		}
 	}
 
-	class ContEntry {
+    internal class ContEntry {
 
 		public string Hash;
 		public string NcaId;
