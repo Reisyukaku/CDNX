@@ -14,11 +14,11 @@ namespace CDNNX {
 		//Sanitation
 		public static bool IsValidTid(string hexstr) {
 			Regex.Replace(hexstr, @"\s+", "");
-			return !Regex.IsMatch(hexstr, @"0100[0-9a-zA-Z]{12}") ? false : true;
+			return Regex.IsMatch(hexstr, @"0100[0-9a-zA-Z]{12}");
 		}
 
 		public static bool IsValidVersion(string ver) {
-            return (Regex.Match(ver, @"[0-9]\.[0-9]\.[0-9]\.[0-9]*").Success || Regex.Match(ver, @"[0-9]*").Success) ? true : false;
+            return Regex.Match(ver, @"[0-9]\.[0-9]\.[0-9]\.[0-9]*").Success || Regex.Match(ver, @"[0-9]*").Success;
         }
 	}
 }

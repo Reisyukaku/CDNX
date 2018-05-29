@@ -5,7 +5,7 @@ using System.IO;
 namespace CDNNX {
 
 	#region NCA3
-	class NCA3 {
+	internal class NCA3 {
 
 		public byte[] RSASig_0 = { };
 		public byte[] RSASig_1 = { };
@@ -14,9 +14,9 @@ namespace CDNNX {
 		public byte ContentType;
 		public byte CryptoType;
 		public byte KaekIndex;
-		public UInt64 Size;
-		public UInt64 TitleID;
-		public UInt32 SDKVersion;
+		public ulong Size;
+		public ulong TitleID;
+		public uint SDKVersion;
 		public byte CryptoType2;
 		public byte[] RightsID = { };
 
@@ -43,15 +43,15 @@ namespace CDNNX {
 			RightsID = br.ReadBytes(0x10);
 
 			List<SectionTableEntry> SectionTableEntries = new List<SectionTableEntry>();
-			for (var i = 0; i < 4; i++) SectionTableEntries.Add(new SectionTableEntry(br));
+			for (int i = 0; i < 4; i++) SectionTableEntries.Add(new SectionTableEntry(br));
 
 			HashTable = new List<byte[]>();
-			for (var i = 0; i < 4; i++) HashTable.Add(br.ReadBytes(0x20));
+			for (int i = 0; i < 4; i++) HashTable.Add(br.ReadBytes(0x20));
 
-            var keyblob = AES.DecryptKeyArea(br, KaekIndex, CryptoType) ?? new byte[0x10];
+            byte[] keyblob = AES.DecryptKeyArea(br, KaekIndex, CryptoType) ?? new byte[0x10];
 
             KeyArea = new List<byte[]>();
-            for (var i = 0; i < 4; i++) {
+            for (int i = 0; i < 4; i++) {
                 byte[] temp = new byte[0x10];
                 Array.Copy(keyblob, (i*0x10), temp, 0, 0x10);
                 KeyArea.Add(temp);
@@ -60,13 +60,13 @@ namespace CDNNX {
 			//Section header block
 			br.BaseStream.Position = 0x400;
 			br.ReadBytes(3); //???
-			var fsType = br.ReadByte();
-			var cryptoType = br.ReadByte();
+			byte fsType = br.ReadByte();
+			byte cryptoType = br.ReadByte();
 			br.ReadBytes(3);
 
 			//dont really need this stuff. Might finish later for completion
-			UInt64 offsetRel = 0;
-			UInt64 pfs0ActualSize = 0;
+			ulong offsetRel = 0;
+			ulong pfs0ActualSize = 0;
 			if (fsType == 2) {
 				//PFS0 superblock
 				br.ReadBytes(0x38);
@@ -83,16 +83,16 @@ namespace CDNNX {
 			byte[] iv = new byte[0x10];
 			Array.Copy(BitConverter.GetBytes(SectionTableEntries[0].MediaOffset >> 4), 0, iv, 0, 4);
 			Array.Reverse(iv);
-			var dec_cont = AES.CTRMode(br, contSize, KeyArea[cryptoType == 3 ? 2 : 0], iv);
+			BinaryReader dec_cont = AES.CTRMode(br, contSize, KeyArea[cryptoType == 3 ? 2 : 0], iv);
 			dec_cont.ReadBytes((int)offsetRel);
 			pfs0 = new PFS0(dec_cont);
 		}
 	}
 
-	class SectionTableEntry {
+	internal class SectionTableEntry {
 
-		public UInt32 MediaOffset;
-		public UInt32 MediaEndOffset;
+		public uint MediaOffset;
+		public uint MediaEndOffset;
 
 		public SectionTableEntry(BinaryReader br) {
 			MediaOffset = br.ReadUInt32() * 0x200;
@@ -104,7 +104,7 @@ namespace CDNNX {
 	#endregion
 
 	#region PFS0
-	class PFS0 {
+	internal class PFS0 {
 
 		public byte[] Hash = { };
 		public string Magic;
@@ -118,23 +118,23 @@ namespace CDNNX {
 			uint stringTableSize = br.ReadUInt32();
 			br.ReadBytes(4);
 			Files = new List<FileEntry>();
-			for (var i = 0; i < fileCnt; i++) {
+			for (int i = 0; i < fileCnt; i++) {
 				Files.Add(new FileEntry(br, startOffset+0x10+(fileCnt*0x18), stringTableSize));
 			}
 		}
 	}
 
-	class FileEntry {
+	internal class FileEntry {
 
 		public byte[] RawData;
 		public string FileName;
 
 		public FileEntry(BinaryReader br, long strTableOff, long strTableSize) {
-			var dataOff = br.ReadUInt64();
-			var dataSize = br.ReadUInt64();
-			var strOff = br.ReadUInt32();
+			ulong dataOff = br.ReadUInt64();
+			ulong dataSize = br.ReadUInt64();
+			uint strOff = br.ReadUInt32();
 			br.ReadUInt32();
-			var currPos = br.BaseStream.Position;
+			long currPos = br.BaseStream.Position;
 
 			br.BaseStream.Position = strTableOff + strOff;
 			char ch; while ((ch = br.ReadChar()) != 0) FileName += ch;

@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace CDNNX {
 
-	class AES {
+	internal class AES {
 
 		[DllImport("NXCrypt.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
 		private extern static void decryptHeader([Out] byte[] dst, byte[] src, int fileSize, byte[] headerKey);
@@ -33,7 +33,7 @@ namespace CDNNX {
 
 		public static byte[] DecryptKeyArea(BinaryReader br, uint kaekInd, uint mkInd) {
             if (INIFile.Read("keys", "MK" + mkInd.ToString("D2")) == string.Empty) {
-                MessageBox.Show(string.Format("Missing the required Masterkey {0} for this title!", mkInd.ToString("D2")));
+                MessageBox.Show($"Missing the required Masterkey {mkInd:D2} for this title!");
                 return null;
             }
 
@@ -66,7 +66,7 @@ namespace CDNNX {
 			byte[] res = null;
 			try {
 				res = new byte[contSize];
-				var temp = br.ReadBytes(contSize);
+				byte[] temp = br.ReadBytes(contSize);
 				AesCtr(res, temp, (uint)contSize, key, iv);
 				br.Close();
 			} catch (Exception e) {

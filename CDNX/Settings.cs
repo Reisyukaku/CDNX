@@ -19,7 +19,7 @@ namespace CDNNX {
             INIFile.Write("settings", "did", "0000000000000000");
             INIFile.Write("settings", "firmver", "0.0.0-0");
             INIFile.Write("settings", "eid", "lp1");
-            INIFile.Write("settings", "cert", Directory.GetCurrentDirectory() + "/nx_tls_client_cert.pfx");
+            INIFile.Write("settings", "cert", Path.Combine(Application.StartupPath, "nx_tls_client_cert.pfx"));
         }
 
         private void cancelBut_Click(object sender, EventArgs e) {
