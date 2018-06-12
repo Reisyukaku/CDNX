@@ -50,8 +50,8 @@ namespace CDNNX {
                 var response = HTTP.Request("GET", url);
                 int max = (int)(response.ContentLength / 0x1000);
                 ThreadSafe(() => {
-                    progBar.Maximum = max < 0x1000 ? 1 : max;
-                    progBar.Step = 1;
+                    //progBar.Maximum = max < 0x1000 ? 1 : max;
+                    //progBar.Step = 1;
                 
                     //Read response in chunks of 0x1000 bytes
                     string filepath = string.Format("{0}/{1}", Directory.GetCurrentDirectory(), filename);
@@ -64,7 +64,7 @@ namespace CDNNX {
                                 Console.WriteLine("Bytesread: " + bytesRead.ToString("X8"));
                                 fileStream.Write(buffer, 0, bytesRead);
                                 if ((DateTime.UtcNow - startTime).TotalMinutes > 5) throw new ApplicationException("Download timed out");
-                                progBar.PerformStep();
+                                //progBar.PerformStep();
                             } while (bytesRead > 0);
                         }
                     }
