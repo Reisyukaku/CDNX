@@ -7,7 +7,7 @@ namespace CDNNX {
     class HTTP {
 
         public static WebResponse Request(string method, string url) {
-            X509Certificate2 cert = new X509Certificate2(INIFile.Read("settings", "cert"));
+            X509Certificate2 cert = new X509Certificate2(INIFile.Read("settings", "cert"), "switch");
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.ClientCertificates.Add(cert);
             request.UserAgent = string.Format("NintendoSDK Firmware/{0} (platform:NX; did:{1}; eid:{2})", INIFile.Read("settings", "firmver"), INIFile.Read("settings", "did"), INIFile.Read("settings", "eid"));
