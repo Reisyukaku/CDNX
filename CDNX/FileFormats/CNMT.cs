@@ -34,6 +34,7 @@ namespace CDNNX {
 			contEntries = new List<ContEntry>();
 			for (var i = 0; i < contCnt; i++) {
 				ContEntry entry = new ContEntry(br);
+				Console.WriteLine("NcaID: " + entry.NcaId);
 				contEntries.Add(entry);
 			}
 			br.Close();
@@ -47,14 +48,17 @@ namespace CDNNX {
 		public uint Size;
 		public string Type;
 
-		private string[] types = { "Meta", "Program", "Data", "Control", "Offline-Manual", "Manual" };
-
 		public ContEntry(BinaryReader br) {
 			Hash = BitConverter.ToString(br.ReadBytes(32)).Replace("-", string.Empty);
 			NcaId = BitConverter.ToString(br.ReadBytes(16)).Replace("-", string.Empty);
 			Size = BitConverter.ToUInt32(br.ReadBytes(6), 0);
-			Type = types[br.ReadByte()];
+			Type = typeToStr(br.ReadByte());
 			br.ReadByte();
+		}
+
+		string typeToStr(int type) {
+			string[] types = { "Meta", "Program", "Data", "Control", "Offline-Manual", "Manual" };
+			return type >= types.Length ? "Type "+type.ToString() : types[type];
 		}
 	}
 }
