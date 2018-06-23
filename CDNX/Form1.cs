@@ -7,11 +7,11 @@ using System.Windows.Forms;
 
 namespace CDNNX {
 
-	public partial class Form1 : Form {
+    public partial class Form1 : Form {
 
         public Form1() {
             //Initialize stuff
-			InitializeComponent();
+            InitializeComponent();
 
             //Check for pre-req. files
             if (!File.Exists(Directory.GetCurrentDirectory() + "/config.ini")) {
@@ -20,15 +20,15 @@ namespace CDNNX {
             }
 
             if (!File.Exists(Directory.GetCurrentDirectory() + @"\NXCrypt.dll")) {
-				MessageBox.Show("Missing NXCrypt.dll dependency in root dir.");
-				Environment.Exit(0);
-			}
+                MessageBox.Show("Missing NXCrypt.dll dependency in root dir.");
+                Environment.Exit(0);
+            }
 
             string cert = INIFile.Read("settings", "cert");
             if (!File.Exists(cert) || !Regex.IsMatch(cert, @"\.pfx")) {
                 MessageBox.Show("Proper cert missing from settings!");
             }
-		}
+        }
 
         string GetMetadataUrl(string tid, string ver) {
             StatusWrite("Getting meta NcaId..");
@@ -44,58 +44,58 @@ namespace CDNNX {
             return ret;
         }
 
-		void DownloadFile(string url, string filename) {
-			try {
-				//Setup webrequest
-				DateTime startTime = DateTime.UtcNow;
-				var response = HTTP.Request("GET", url);
-				int max = (int)(response.ContentLength / 0x1000);
+        void DownloadFile(string url, string filename) {
+            try {
+                //Setup webrequest
+                DateTime startTime = DateTime.UtcNow;
+                var response = HTTP.Request("GET", url);
+                int max = (int)(response.ContentLength / 0x1000);
 
-				//Read response in chunks of 0x1000 bytes
-				string filepath = string.Format("{0}/{1}", Directory.GetCurrentDirectory(), filename);
-				using (Stream responseStream = response.GetResponseStream()) {
-					using (Stream fileStream = File.OpenWrite(filepath)) {
-						byte[] buffer = new byte[0x1000];
-						int bytesRead = 0;
-						do {
-							bytesRead = responseStream.Read(buffer, 0, 0x1000);
-							fileStream.Write(buffer, 0, bytesRead);
-							if ((DateTime.UtcNow - startTime).TotalMinutes > 5) throw new ApplicationException("Download timed out");
-							ThreadSafe(() => {
-								progBar.Maximum = (max < 0x1000 ? 1 : max);
-								progBar.Step = 1;
-								progBar.PerformStep();
-							});
-						} while (bytesRead > 0);
-					}
-				}
-				response.Close();
-			} catch (Exception e) {
-				Console.WriteLine(e);
-			}
+                //Read response in chunks of 0x1000 bytes
+                string filepath = string.Format("{0}/{1}", Directory.GetCurrentDirectory(), filename);
+                using (Stream responseStream = response.GetResponseStream()) {
+                    using (Stream fileStream = File.OpenWrite(filepath)) {
+                        byte[] buffer = new byte[0x1000];
+                        int bytesRead = 0;
+                        do {
+                            bytesRead = responseStream.Read(buffer, 0, 0x1000);
+                            fileStream.Write(buffer, 0, bytesRead);
+                            if ((DateTime.UtcNow - startTime).TotalMinutes > 5) throw new ApplicationException("Download timed out");
+                            ThreadSafe(() => {
+                                progBar.Maximum = (max < 0x1000 ? 1 : max);
+                                progBar.Step = 1;
+                                progBar.PerformStep();
+                            });
+                        } while (bytesRead > 0);
+                    }
+                }
+                response.Close();
+            } catch (Exception e) {
+                Console.WriteLine(e);
+            }
         }
 
         void downloadContent(string tid, string ver) {
             try {
-				//Download metadata
-				StatusWrite("Downloading meta...");
-				Directory.CreateDirectory(string.Format("{0}/{1}", Directory.GetCurrentDirectory(), tid));
+                //Download metadata
+                StatusWrite("Downloading meta...");
+                Directory.CreateDirectory(string.Format("{0}/{1}", Directory.GetCurrentDirectory(), tid));
                 var metaurl = GetMetadataUrl(tid, ver);
                 DownloadFile(metaurl, string.Format("{0}/{1}", tid, ver));
                 
                 //Decrypt/parse meta data and download NCAs
                 string meta = string.Format("{0}/{1}/{2}", Directory.GetCurrentDirectory(), tid, ver);
                 if (File.Exists(meta)) {
-					StatusWrite("Parsing meta...");
+                    StatusWrite("Parsing meta...");
                     NCA3 nca3 = new NCA3(meta);
                     CNMT cnmt = new CNMT(new BinaryReader(new MemoryStream(nca3.pfs0.Files[0].RawData)));
                     WriteLine("Title: {0} v{1}\nType: {2}\nMKey: {3}\n", cnmt.TitleId.ToString("X8"), ver, cnmt.Type, nca3.CryptoType.ToString("D2"));
-					StatusWrite("Downloading content...");
-					foreach (var nca in cnmt.contEntries) {
+                    StatusWrite("Downloading content...");
+                    foreach (var nca in cnmt.contEntries) {
                         WriteLine("[{0}]\n{1}", nca.Type, nca.NcaId);
                         DownloadFile(string.Format("{0}/c/c/{1}", Settings.GetCdnUrl(), nca.NcaId), string.Format("{0}/{1}", tid, nca.NcaId));
                     }
-					StatusWrite("Done!");
+                    StatusWrite("Done!");
                 } else {
                     WriteLine("Error retriving meta!");
                 }
@@ -103,23 +103,23 @@ namespace CDNNX {
             catch (Exception e) {
                 Console.WriteLine(e.StackTrace);
             }
-		}
+        }
 
-		#region GUI
-		private void dlBut_Click(object sender, EventArgs e) {
+        #region GUI
+        private void dlBut_Click(object sender, EventArgs e) {
             StatusWrite("Starting...");
 
-			//Sanitize GUI inputs
-			outText.Text = "";
+            //Sanitize GUI inputs
+            outText.Text = "";
             string version = "";
-			if (!Utils.IsValidTid(tidText.Text)) {
-				WriteLine("Invalid TID!");
-				return;
-			}
-			if (!Utils.IsValidVersion(verText.Text)) {
-				WriteLine("Invalid version!");
-				return;
-			}
+            if (!Utils.IsValidTid(tidText.Text)) {
+                WriteLine("Invalid TID!");
+                return;
+            }
+            if (!Utils.IsValidVersion(verText.Text)) {
+                WriteLine("Invalid version!");
+                return;
+            }
 
             //Check if appropriate settings are set
             if (
@@ -142,8 +142,8 @@ namespace CDNNX {
                 version = verText.Text;
             }
 
-			new Thread(() => { downloadContent(tidText.Text, version); }).Start();
-		}
+            new Thread(new ThreadStart(() => { downloadContent(tidText.Text, version); })).Start();
+        }
 
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e) {
             var settings = new Settings();
@@ -158,21 +158,21 @@ namespace CDNNX {
 
         #region MISC
         void WriteLine(string str, params object[] args) {
-			string res = "";
-			foreach (var s in str.Split('\n')) res += s + Environment.NewLine;
+            string res = "";
+            foreach (var s in str.Split('\n')) res += s + Environment.NewLine;
             ThreadSafe(() => { outText.Text += string.Format(res, args); });
-		}
+        }
 
         void StatusWrite(string str, params object[] args) {
             ThreadSafe(() => { statusLbl.Text = string.Format(str, args); });
         }
 
         private void ThreadSafe(MethodInvoker method) {
-			if (InvokeRequired)
-				Invoke(method);
-			else
-				method();
-		}
+            if (InvokeRequired)
+                Invoke(method);
+            else
+                method();
+        }
         #endregion
 
 
