@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -43,59 +44,58 @@ namespace CDNNX {
             return ret;
         }
 
-        void DownloadFile(string url, string filename) {
-            try {
-                //Setup webrequest
-                DateTime startTime = DateTime.UtcNow;
-                var response = HTTP.Request("GET", url);
-                int max = (int)(response.ContentLength / 0x1000);
-                ThreadSafe(() => {
-                    //progBar.Maximum = max < 0x1000 ? 1 : max;
-                    //progBar.Step = 1;
-                
-                    //Read response in chunks of 0x1000 bytes
-                    string filepath = string.Format("{0}/{1}", Directory.GetCurrentDirectory(), filename);
-                    using (Stream responseStream = response.GetResponseStream()) {
-                        using (Stream fileStream = File.OpenWrite(filepath)) {
-                            byte[] buffer = new byte[0x1000];
-                            int bytesRead = 0;
-                            do {
-                                bytesRead = responseStream.Read(buffer, 0, 0x1000);
-                                Console.WriteLine("Bytesread: " + bytesRead.ToString("X8"));
-                                fileStream.Write(buffer, 0, bytesRead);
-                                if ((DateTime.UtcNow - startTime).TotalMinutes > 5) throw new ApplicationException("Download timed out");
-                                //progBar.PerformStep();
-                            } while (bytesRead > 0);
-                        }
-                    }
-                });
-                response.Close();
-                } catch (Exception e) {
-Console.WriteLine(e);
-            }
+		void DownloadFile(string url, string filename) {
+			try {
+				//Setup webrequest
+				DateTime startTime = DateTime.UtcNow;
+				var response = HTTP.Request("GET", url);
+				int max = (int)(response.ContentLength / 0x1000);
+
+				//Read response in chunks of 0x1000 bytes
+				string filepath = string.Format("{0}/{1}", Directory.GetCurrentDirectory(), filename);
+				using (Stream responseStream = response.GetResponseStream()) {
+					using (Stream fileStream = File.OpenWrite(filepath)) {
+						byte[] buffer = new byte[0x1000];
+						int bytesRead = 0;
+						do {
+							bytesRead = responseStream.Read(buffer, 0, 0x1000);
+							fileStream.Write(buffer, 0, bytesRead);
+							if ((DateTime.UtcNow - startTime).TotalMinutes > 5) throw new ApplicationException("Download timed out");
+							ThreadSafe(() => {
+								progBar.Maximum = (max < 0x1000 ? 1 : max);
+								progBar.Step = 1;
+								progBar.PerformStep();
+							});
+						} while (bytesRead > 0);
+					}
+				}
+				response.Close();
+			} catch (Exception e) {
+				Console.WriteLine(e);
+			}
         }
 
         void downloadContent(string tid, string ver) {
             try {
-                //Download metadata
-                Directory.CreateDirectory(string.Format("{0}/{1}", Directory.GetCurrentDirectory(), tid));
+				//Download metadata
+				StatusWrite("Downloading meta...");
+				Directory.CreateDirectory(string.Format("{0}/{1}", Directory.GetCurrentDirectory(), tid));
                 var metaurl = GetMetadataUrl(tid, ver);
-                StatusWrite("Downloading meta NCA...");
                 DownloadFile(metaurl, string.Format("{0}/{1}", tid, ver));
                 
                 //Decrypt/parse meta data and download NCAs
                 string meta = string.Format("{0}/{1}/{2}", Directory.GetCurrentDirectory(), tid, ver);
                 if (File.Exists(meta)) {
-                    StatusWrite("Parsing meta...");
+					StatusWrite("Parsing meta...");
                     NCA3 nca3 = new NCA3(meta);
                     CNMT cnmt = new CNMT(new BinaryReader(new MemoryStream(nca3.pfs0.Files[0].RawData)));
                     WriteLine("Title: {0} v{1}\nType: {2}\nMKey: {3}\n", cnmt.TitleId.ToString("X8"), ver, cnmt.Type, nca3.CryptoType.ToString("D2"));
-                    foreach (var nca in cnmt.contEntries) {
+					StatusWrite("Downloading content...");
+					foreach (var nca in cnmt.contEntries) {
                         WriteLine("[{0}]\n{1}", nca.Type, nca.NcaId);
-                        StatusWrite("Downloading content NCA...");
                         DownloadFile(string.Format("{0}/c/c/{1}", Settings.GetCdnUrl(), nca.NcaId), string.Format("{0}/{1}", tid, nca.NcaId));
                     }
-                    WriteLine("Done!");
+					StatusWrite("Done!");
                 } else {
                     WriteLine("Error retriving meta!");
                 }
@@ -142,7 +142,7 @@ Console.WriteLine(e);
                 version = verText.Text;
             }
 
-            Task.Run(() => { downloadContent(tidText.Text, version); });
+			new Thread(() => { downloadContent(tidText.Text, version); }).Start();
 		}
 
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -164,8 +164,7 @@ Console.WriteLine(e);
 		}
 
         void StatusWrite(string str, params object[] args) {
-            string res = "";
-            ThreadSafe(() => { statusLbl.Text += string.Format(res, args); });
+            ThreadSafe(() => { statusLbl.Text = string.Format(str, args); });
         }
 
         private void ThreadSafe(MethodInvoker method) {
