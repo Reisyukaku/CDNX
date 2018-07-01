@@ -79,21 +79,21 @@ namespace CDNNX {
             try {
                 //Download metadata
                 StatusWrite("Downloading meta...");
-                Directory.CreateDirectory(string.Format("{0}/{1}", Directory.GetCurrentDirectory(), tid));
+                Directory.CreateDirectory(string.Format("{0}/{1}_{2}", Directory.GetCurrentDirectory(), tid, ver));
                 var metaurl = GetMetadataUrl(tid, ver);
-                DownloadFile(metaurl, string.Format("{0}/{1}", tid, ver));
+                DownloadFile(metaurl, string.Format("{0}_{1}/{1}", tid, ver));
                 
                 //Decrypt/parse meta data and download NCAs
-                string meta = string.Format("{0}/{1}/{2}", Directory.GetCurrentDirectory(), tid, ver);
+                string meta = string.Format("{0}/{1}_{2}/{2}", Directory.GetCurrentDirectory(), tid, ver);
                 if (File.Exists(meta)) {
                     StatusWrite("Parsing meta...");
                     NCA3 nca3 = new NCA3(meta);
                     CNMT cnmt = new CNMT(new BinaryReader(new MemoryStream(nca3.pfs0.Files[0].RawData)));
-                    WriteLine("Title: {0} v{1}\nType: {2}\nMKey: {3}\n", cnmt.TitleId.ToString("X8"), ver, cnmt.Type, nca3.CryptoType.ToString("D2"));
+                    WriteLine("Title: {0} v{1}\nRights Id: {2}\nType: {3}\nMKey: {4}\n", cnmt.TitleId.ToString("X8"), ver, BitConverter.ToString(nca3.RightsID).Replace("-", ""), cnmt.Type, nca3.CryptoType.ToString("D2"));
                     StatusWrite("Downloading content...");
                     foreach (var nca in cnmt.contEntries) {
                         WriteLine("[{0}]\n{1}", nca.Type, nca.NcaId);
-                        DownloadFile(string.Format("{0}/c/c/{1}", Settings.GetCdnUrl(), nca.NcaId), string.Format("{0}/{1}", tid, nca.NcaId));
+                        DownloadFile(string.Format("{0}/c/c/{1}", Settings.GetCdnUrl(), nca.NcaId), string.Format("{0}_{1}/{2}", tid, ver, nca.NcaId));
                     }
                     StatusWrite("Done!");
                 } else {
