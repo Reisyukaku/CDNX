@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace CDNNX {
+namespace CDNX {
     class CNMT {
 
         public UInt64 TitleId;

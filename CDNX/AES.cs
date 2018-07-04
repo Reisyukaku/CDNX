@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace CDNNX {
+namespace CDNX {
 
     class AES {
 

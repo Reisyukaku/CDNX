@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Windows.Forms;
 
-namespace CDNNX {
+namespace CDNX {
 
 	static class Program {
 		/// <summary>

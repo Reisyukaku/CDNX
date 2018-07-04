@@ -1,4 +1,4 @@
-﻿namespace CDNNX {
+﻿namespace CDNX {
     partial class Splash {
         /// <summary>
         /// Required designer variable.

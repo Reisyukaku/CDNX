@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace CDNNX {
+namespace CDNX {
     public partial class Splash : Form {
 
         Timer t = new Timer();

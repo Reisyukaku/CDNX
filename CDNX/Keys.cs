@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace CDNNX {
+namespace CDNX {
     public partial class Keys : Form {
 
         private const uint MAXKEYS = 5;

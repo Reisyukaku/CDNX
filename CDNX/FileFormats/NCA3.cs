@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace CDNNX {
+namespace CDNX {
 
     #region NCA3
     class NCA3 {

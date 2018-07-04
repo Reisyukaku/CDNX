@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace CDNNX {
+namespace CDNX {
 
     public class INIFile {
 

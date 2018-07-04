@@ -2,10 +2,9 @@
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace CDNNX {
+namespace CDNX {
 
     public partial class Form1 : Form {
 
